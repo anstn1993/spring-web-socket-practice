@@ -55,7 +55,7 @@
             //소켓 메세지 수신 핸들러
             webSocket.onmessage = function (event) {
 
-                var chatData = JSON.parse(event.data);
+                var chatData = JSON.parse(event.data);//ex: {"account":"aaaa", "message":"hey~!"}
                 console.log('received message: ' + chatData);
 
                 $('#chat_box').append('<div style="text-align: left">' + chatData.account + ': ' + chatData.message + '</div>');
