@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmln:th="http://www.thymeleaf.com">
+<head>
+    <meta charset="UTF-8">
+    <title>웹 소켓 테스트</title>
+</head>
+<body>
+<div>
+    <h2 style="text-align: center">실시간 채팅</h2>
+</div>
+<br>
+<br>
+<div id="chat_box" style="border: black 1px solid; height: 500px">
+
+</div>
+<br>
+<br>
+<textarea id="chat_text" placeholder="채팅을 입력해주세요"></textarea>
+<input id="send_btn" type="button" value="전송">
+
+
+</body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</html>
+<script>
+
+    var socket = null;
+
+    $(document).ready(function () {
+
+        connectSocket();//web socket 연결
+
+        //전송 버튼 클릭 핸들러
+        $('#send_btn').on('click', function () {
+
+            var chat = $('#chat_text').val();
+
+            socket.send(chat);//소켓 서버로 전송
+
+            $('#chat_box').append('<div style="text-align: right">' + chat + '</div>');//채팅 창에 메세지 추가
+
+            $('#chat_text').val('');//채팅 입력창 clear
+        });
+    });
+
+    function connectSocket() {
+        console.log('connect web socket');
+        var webSocket = new WebSocket("ws://localhost/websocket");//소켓에 연결되기 전까지 wait
+        socket = webSocket;
+
+        //소켓 connect 핸들러
+        webSocket.onopen = function () {
+            console.log('connection opened');
+
+            //소켓 메세지 수신 핸들러
+            webSocket.onmessage = function (event) {
+
+                var chatData = JSON.parse(event.data);
+                console.log('received message: ' + chatData);
+
+                $('#chat_box').append('<div style="text-align: left">' + chatData.account + ': ' + chatData.message + '</div>');
+
+            };
+
+            //소켓 종료 핸들러
+            webSocket.onclose = function () {
+
+                console.log('connection closed');
+
+            };
+
+            //소켓 에러 핸들러
+            webSocket.onerror = function () {
+
+                console.log('connection error');
+
+            };
+        };
+    }
+</script>
